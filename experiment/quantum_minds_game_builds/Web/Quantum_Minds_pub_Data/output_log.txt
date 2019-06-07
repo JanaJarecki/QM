@@ -1,0 +1,59 @@
+Initialize engine version: 5.4.2f2 (b7e030c65c9b)
+GfxDevice: creating device client; threaded=1
+Direct3D:
+    Version:  Direct3D 11.0 [level 11.0]
+    Renderer: Intel(R) Iris(TM) Graphics 6100 (ID=0x162b)
+    Vendor:   Intel
+    VRAM:     2111 MB
+Begin MonoManager ReloadAssembly
+Platform assembly: C:\Users\Jana Jarecki\Google Drive\QG\3-Experiment\Builds\Web\Quantum_Minds_pub_Data\Managed\UnityEngine.dll (this message is harmless)
+Loading C:\Users\Jana Jarecki\Google Drive\QG\3-Experiment\Builds\Web\Quantum_Minds_pub_Data\Managed\UnityEngine.dll into Unity Child Domain
+Platform assembly: C:\Users\Jana Jarecki\Google Drive\QG\3-Experiment\Builds\Web\Quantum_Minds_pub_Data\Managed\Assembly-CSharp-firstpass.dll (this message is harmless)
+Loading C:\Users\Jana Jarecki\Google Drive\QG\3-Experiment\Builds\Web\Quantum_Minds_pub_Data\Managed\Assembly-CSharp-firstpass.dll into Unity Child Domain
+Platform assembly: C:\Users\Jana Jarecki\Google Drive\QG\3-Experiment\Builds\Web\Quantum_Minds_pub_Data\Managed\Assembly-CSharp.dll (this message is harmless)
+Loading C:\Users\Jana Jarecki\Google Drive\QG\3-Experiment\Builds\Web\Quantum_Minds_pub_Data\Managed\Assembly-CSharp.dll into Unity Child Domain
+Platform assembly: C:\Users\Jana Jarecki\Google Drive\QG\3-Experiment\Builds\Web\Quantum_Minds_pub_Data\Managed\Assembly-UnityScript.dll (this message is harmless)
+Loading C:\Users\Jana Jarecki\Google Drive\QG\3-Experiment\Builds\Web\Quantum_Minds_pub_Data\Managed\Assembly-UnityScript.dll into Unity Child Domain
+Platform assembly: C:\Users\Jana Jarecki\Google Drive\QG\3-Experiment\Builds\Web\Quantum_Minds_pub_Data\Managed\UnityEngine.UI.dll (this message is harmless)
+Loading C:\Users\Jana Jarecki\Google Drive\QG\3-Experiment\Builds\Web\Quantum_Minds_pub_Data\Managed\UnityEngine.UI.dll into Unity Child Domain
+Platform assembly: C:\Users\Jana Jarecki\Google Drive\QG\3-Experiment\Builds\Web\Quantum_Minds_pub_Data\Managed\UnityEngine.Networking.dll (this message is harmless)
+Loading C:\Users\Jana Jarecki\Google Drive\QG\3-Experiment\Builds\Web\Quantum_Minds_pub_Data\Managed\UnityEngine.Networking.dll into Unity Child Domain
+Platform assembly: C:\Users\Jana Jarecki\Google Drive\QG\3-Experiment\Builds\Web\Quantum_Minds_pub_Data\Managed\UnityEngine.Analytics.dll (this message is harmless)
+Loading C:\Users\Jana Jarecki\Google Drive\QG\3-Experiment\Builds\Web\Quantum_Minds_pub_Data\Managed\UnityEngine.Analytics.dll into Unity Child Domain
+Platform assembly: C:\Users\Jana Jarecki\Google Drive\QG\3-Experiment\Builds\Web\Quantum_Minds_pub_Data\Managed\DotNumerics.dll (this message is harmless)
+Loading C:\Users\Jana Jarecki\Google Drive\QG\3-Experiment\Builds\Web\Quantum_Minds_pub_Data\Managed\DotNumerics.dll into Unity Child Domain
+Platform assembly: C:\Users\Jana Jarecki\Google Drive\QG\3-Experiment\Builds\Web\Quantum_Minds_pub_Data\Managed\Vectrosity.dll (this message is harmless)
+Loading C:\Users\Jana Jarecki\Google Drive\QG\3-Experiment\Builds\Web\Quantum_Minds_pub_Data\Managed\Vectrosity.dll into Unity Child Domain
+Platform assembly: C:\Users\Jana Jarecki\Google Drive\QG\3-Experiment\Builds\Web\Quantum_Minds_pub_Data\Managed\Parse.Unity.dll (this message is harmless)
+Loading C:\Users\Jana Jarecki\Google Drive\QG\3-Experiment\Builds\Web\Quantum_Minds_pub_Data\Managed\Parse.Unity.dll into Unity Child Domain
+Platform assembly: C:\Users\Jana Jarecki\Google Drive\QG\3-Experiment\Builds\Web\Quantum_Minds_pub_Data\Managed\DOTween.dll (this message is harmless)
+Loading C:\Users\Jana Jarecki\Google Drive\QG\3-Experiment\Builds\Web\Quantum_Minds_pub_Data\Managed\DOTween.dll into Unity Child Domain
+Platform assembly: C:\Users\Jana Jarecki\Google Drive\QG\3-Experiment\Builds\Web\Quantum_Minds_pub_Data\Managed\DOTween50.dll (this message is harmless)
+Loading C:\Users\Jana Jarecki\Google Drive\QG\3-Experiment\Builds\Web\Quantum_Minds_pub_Data\Managed\DOTween50.dll into Unity Child Domain
+Platform assembly: C:\Users\Jana Jarecki\Google Drive\QG\3-Experiment\Builds\Web\Quantum_Minds_pub_Data\Managed\DOTween46.dll (this message is harmless)
+Loading C:\Users\Jana Jarecki\Google Drive\QG\3-Experiment\Builds\Web\Quantum_Minds_pub_Data\Managed\DOTween46.dll into Unity Child Domain
+Platform assembly: C:\Users\Jana Jarecki\Google Drive\QG\3-Experiment\Builds\Web\Quantum_Minds_pub_Data\Managed\DOTween43.dll (this message is harmless)
+Loading C:\Users\Jana Jarecki\Google Drive\QG\3-Experiment\Builds\Web\Quantum_Minds_pub_Data\Managed\DOTween43.dll into Unity Child Domain
+- Completed reload, in  0.066 seconds
+Platform assembly: C:\Users\Jana Jarecki\Google Drive\QG\3-Experiment\Builds\Web\Quantum_Minds_pub_Data\Managed\System.Core.dll (this message is harmless)
+Platform assembly: C:\Users\Jana Jarecki\Google Drive\QG\3-Experiment\Builds\Web\Quantum_Minds_pub_Data\Managed\System.dll (this message is harmless)
+OnLevelWasLoaded was found on WoogliePiracyProtection
+This message has been deprecated and will be removed in a later version of Unity.
+Add a delegate to SceneManager.sceneLoaded instead to get notifications after scene loading has completed
+ 
+(Filename:  Line: 375)
+
+OnLevelWasLoaded was found on LineManager
+This message has been deprecated and will be removed in a later version of Unity.
+Add a delegate to SceneManager.sceneLoaded instead to get notifications after scene loading has completed
+ 
+(Filename:  Line: 375)
+
+desktop: 2560x1600 60Hz; virtual: 1920x1200 at 0,0
+<RI> Initializing input.
+XInput1_3.dll not found. Trying XInput9_1_0.dll instead...
+<RI> Input initialized.
+<RI> Initialized touch support.
+UnloadTime: 2.158326 ms
+Setting up 1 worker threads for Enlighten.
+  Thread -> id: 2340 -> priority: 1 

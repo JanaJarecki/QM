@@ -1,0 +1,273 @@
+function [costs,scores,shortenedFidelity,u] = krotov( optParams, uObject, Params)
+%KROTOV Runs a krotov optimization.
+%Only works on totalpath, not fourier components!
+%Potential is supplied in Params.
+%
+%If Params includes Points and Obstacles, these are included in the
+%optimization.
+%
+%IN nIter, u, Params
+%OUT costs,scores,fid,u,dts(not working)
+
+
+% TODO: fid should be double length, forward/backward is one iteration
+% each, because thats the amount of propagation matrices applied.
+
+nIter = optParams.maxIter;
+u = uObject.path;
+
+if isa(Params.plotter,'PathPlotter')
+    plotProgress = 1;
+else
+    plotProgress = 0;
+end
+
+%%% definitions
+nPar = 2;                 % number of control parameters
+pArr = 1:nPar;            % indexes of the optimize parameters
+
+%%% TOC parameters
+alpha0 = 1e-2*[1; 100];
+alphaMin = 1e-20*[1; 100];
+alphaMax = 1e1*[1; 100];
+rGoal =1*[0.4, 0.4]';
+
+
+%%% Memory allocation for loop records
+phi = zeros(size(Params.x,2),uObject.nInt+1);  % initial state trajectory
+chi = phi;                % final state trajectory
+grad = zeros(nPar,uObject.nInt);
+gPrev = grad;
+cF = zeros(1,uObject.nInt);
+T = zeros(1,nIter);
+fid = T;
+costs = T;
+scores = T;
+A1 = T;
+A2 = zeros(nPar,nIter);
+proj = A2;
+alpha = alpha0*ones(1,nIter);
+
+%%% TOC options
+optParameters = 1 ;        % optimize parameters boolean
+dt = ones(1,uObject.nInt)*Params.normalDt;   % vector of time intervals
+
+
+%%% limits on the parameters
+uMin = [Params.xMin; Params.yMin];
+uMax = [Params.xMax; Params.yMax];
+
+
+if strcmp(Params.levelname,'qshakeit')
+    QShakeIt = 1;
+else
+    QShakeIt = 0;
+    
+end
+
+phi(:,1) = Params.startState;          % initial contidion, all atoms in |1>
+chi(:,end) = Params.targetState(u(:,end));
+
+%     function d1 = derPot1f(u)
+%         d1 = @(t) Params.divpotential(1);
+% %         bla = tmp(u)
+% %         d1 = bla{1};
+%     end
+% 
+%     function d2 = derPot2f(u)
+%         tmp = @(u) Params.divpotential(u);
+%         d2 = tmp{2};
+%     end
+
+
+if ~QShakeIt
+    derPot1 = @(u) u(2)*exp(-2*(Params.x-u(1)).^2/Params.waist^2)*-4.*(Params.x-u(1))/Params.waist^2;
+    derPot2 = @(u) exp(-2*(Params.x-u(1)).^2/Params.waist^2);
+    
+    derPot1 = @(u)  Params.divpotential(1);
+    derPot2 = @(u) @(t) Params.divpotential(2));
+    derHam1 = @(u)  diag(derPot1(u));
+    derHam2 = @(u)  diag(derPot2(u));
+
+    
+else
+    derPot1 = @(u) -Params.omega*Params.omega*(u(1) - Params.x);
+    derHam1 = @(u)  diag(derPot1(u));
+end
+
+
+
+%%% TOC loop
+itLoc = 0;  %local number of iteraitons (after initialization)
+it = 1;
+
+forwardPropagator = Propagator(Params.x, -Params.normalDt, Params.kin);
+backwardPropagator = Propagator(Params.x, Params.normalDt, Params.kin);
+while(it <= nIter)
+    %%% determine time evolution direction
+    if(mod(itLoc,2) == 0)
+        intArr = 1:uObject.nInt;
+        forward = 1;
+    else
+        intArr = uObject.nInt:-1:1;
+        forward = 0;
+    end
+    for j = intArr
+        potentialj = Params.potential(u(:,j));
+        if(itLoc > 0)
+            if(1)
+                if(forward)
+                    phi(:,j+1) = forwardPropagator.propagateInTime(phi(:,j  ), potentialj);
+                else
+                    chi(:,j) = backwardPropagator.propagateInTime(chi(:,j+1  ), potentialj);
+                end
+            end
+            
+            grad(:,j) = 0;
+            if forward
+                jP = j+1;
+            else
+                jP = j;
+            end
+            for jP = j:j+1
+                phiM = phi(:,jP);
+                chiM = chi(:,jP);
+                cF(j) = phiM'*chiM;
+                
+                %%% evaluate gradient of fidelity
+                if QShakeIt
+                    grad(1,j) = grad(1,j) + 2*imag(chiM'*derHam1(u(:,j))*phiM*cF(j))*Params.normalDt;
+                else
+                    fidgrad1 = 2*imag(chiM'*derHam1(u(:,j))*phiM*cF(j))*Params.normalDt;
+                    fidgrad2 = 2*imag(chiM'*derHam2(u(:,j))*phiM*cF(j))*Params.normalDt;
+                    
+                    grad(1,j) = grad(1,j) + fidgrad1;
+                    grad(2,j) = grad(2,j) + fidgrad2;
+                end
+            end
+            grad(:,j) = grad(:,j)/2;
+            
+            %%% adjust control parameters
+            if(itLoc > 1 && j~=1 && j~=uObject.nInt)  %start adjusting after two initial iterations BUT not the first step
+                if(optParameters == 1)
+                    % the max jump defines smoothness but at the
+                    % same time it restricts the convergence
+                    % speed...
+                    maxJump = (uMax-uMin)./50;
+                    maxJump(2) = maxJump(2)*10;
+                    %                     maxJump = (uMax-uMin)./100;
+                    update = alpha(pArr,it).*grad(pArr,j);
+                    updated = u(:,j)+update;
+                    maxPossible = min(u(:,j-1) + maxJump,u(:,j+1) + maxJump);
+                    minPossible = max(u(:,j-1) - maxJump,u(:,j+1) - maxJump);
+                    u(:,j) = (updated>maxPossible ).*maxPossible + ...
+                        (updated<minPossible ).*minPossible + ...
+                        (updated<=maxPossible & updated>=minPossible ).*updated;
+                    for l=pArr
+                        if(u(l,j) > uMax(l))
+                            u(l,j) = uMax(l);
+                            grad(l,j) = 0;
+                        end
+                        if(u(l,j) < uMin(l))
+                            u(l,j) = uMin(l);
+                            grad(l,j) = 0;
+                        end
+                    end
+                end
+            end
+            
+            
+            
+            potentialj2 = Params.potential(u(:,j));
+            
+            if(forward)
+                phi(:,j+1) = forwardPropagator.propagateInTime(phi(:,j  ), potentialj2);
+                if plotProgress
+                    Params.plotter = Params.plotter.plotStep(u,potentialj2,phi(:,j+1)) ;
+                end
+            else
+                chi(:,j) = backwardPropagator.propagateInTime(chi(:,j+1  ), potentialj2);
+                if plotProgress
+                    Params.plotter = Params.plotter.plotStep(u,potentialj2,chi(:,j));
+                end
+            end
+            
+            phiM = phi(:,jP);
+            chiM = chi(:,jP);
+            cF(j) = phiM'*chiM;
+            
+        end
+        
+        
+    end
+    
+    
+    
+    if(itLoc > 0)
+        %%% save process performance
+        fid(it) = abs(cF(j))^2;                % fidelity
+        t = cumsum(dt);
+        T(it) = t(end);
+        
+        %%% evaluate TOC integrals
+        for l=1:nPar
+            A2(l,it) = (dt*(grad(l,:).^2)')/T(it);
+            if(it <= 2)
+                proj(l,it) = 1;
+            elseif(A2(l,it-1)*A2(l,it) == 0)
+                proj(l,it) = 0;
+            else
+                proj(l,it) = (dt*(gPrev(l,:).*grad(l,:))')/(T(it)*sqrt(A2(l,it-1)*A2(l,it)));
+            end
+        end
+        
+        %%% adjust the alpha coefficients
+        if(itLoc > 2)
+            r = 1 - proj(:,it);
+            alphaFac = (rGoal./r).^(1/2);
+        else
+            alphaFac = 1;
+        end
+        if(it < nIter)
+            alpha(:,it+1) = alphaFac.*alpha(:,it);
+            alpha(:,it+1) = min(alpha(:,it+1),alphaMax);
+            alpha(:,it+1) = max(alpha(:,it+1),alphaMin);
+        end
+        
+        plotterTemp = Params.plotter;
+        Params.plotter = 0;
+        switch Params.levelname
+            case 'wiggle'
+                [Params,cost,score]= calculateObstacleScoreFromPath2(u,Params);
+            case 'transport'
+                [Params,cost,score,fidelity]= calculateScoreFromPath(u,Params);
+            case 'qshakeit'
+                [Params,cost,score,fidelity]= calculateQShakeItScoreFromPath(u,Params);
+            case 'bringhomewater'
+                [Params,cost,score,fidelity]= calculateBringHomeWaterScoreFromPath(u,Params);
+            otherwise
+                error('what the hell are we optimizing?')
+        end
+        Params.plotter = plotterTemp;
+        costs(it) = cost;
+        scores(it) = score;
+        
+        if plotProgress
+            if exist('fidelity')
+                Params.plotter = Params.plotter.plotIteration(u,{score cost fid(it) fidelity it; 'score' 'cost' 'fidelity' 'calculated fidelity' 'iteration'}) ;
+            else
+                Params.plotter = Params.plotter.plotIteration(u,{score cost fid(it) it; 'score' 'cost' 'fidelity' 'iteration'}) ;
+            end
+        end
+        
+        gPrev = grad;
+        it = it + 1;
+        
+    end
+    itLoc = itLoc + 1;
+end
+
+shortenedFidelity = fid(2:size(fid,2));
+
+end
+
